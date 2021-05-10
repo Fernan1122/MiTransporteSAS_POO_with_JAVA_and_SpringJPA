@@ -161,6 +161,9 @@ public class EmpleadoFrame extends javax.swing.JFrame {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 idTxtFocusGained(evt);
             }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                idTxtFocusLost(evt);
+            }
         });
         idTxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -866,12 +869,12 @@ public class EmpleadoFrame extends javax.swing.JFrame {
             env.setCiudadDestino(obtenerIdCiudad(cityDes.getSelectedItem().toString()).getIdCiudad());
             env.setFecha(Calendar.getInstance().getTime());
         } catch (Exception e) {
- //ejecute una de las excepciones al tratar de hacer crud.
+            //ejecute una de las excepciones al tratar de hacer crud.
         }
 
         return env;
     }
-    
+
     private void registrarEnvio() {
 
         env = setterEnvio(cityOCmb, cityDCmb);
@@ -891,7 +894,7 @@ public class EmpleadoFrame extends javax.swing.JFrame {
             }
         }
     }
-    
+
     /*
         Queda por Programar...
             Envios env1 = envCrud.findTopByClienteAndIdDestOrderByFechaDesc(env.getCliente(), env.getIdDest());
@@ -906,13 +909,10 @@ public class EmpleadoFrame extends javax.swing.JFrame {
     
             Idea...
 
-    */
-    
-    private void imprimirTiquetEnv(Envios env){
-        
+     */
+    private void imprimirTiquetEnv(Envios env) {
+
     }
-    
-    
 
     private void bloquearCamposReg() {
         nameTxt.setEnabled(false);
@@ -940,41 +940,46 @@ public class EmpleadoFrame extends javax.swing.JFrame {
 
     private void funcionRadioButtons() {
         //isPresent retorna null
-        Optional<Cliente> buscaCliente = clienteCrud.findById(Long.parseLong(idTxt.getText()));
-        if (buscaCliente.isPresent()) {
-            if (regRb.isSelected()) {
-                notificaTxt.setText("El Cliente con id: " + idTxt.getText() + "\n ya existe");
-                radioGrupo.clearSelection();
-            }
+        try {
+            Optional<Cliente> buscaCliente = clienteCrud.findById(Long.parseLong(idTxt.getText()));
+            if (buscaCliente.isPresent()) {
+                if (regRb.isSelected()) {
+                    notificaTxt.setText("El Cliente con id: " + idTxt.getText() + "\n ya existe");
+                    radioGrupo.clearSelection();
+                }
 
-            if (searchRb.isSelected()) {
-                regRb.setEnabled(false);
-                habilitarCamposReg();
-                idTxt.setEnabled(false);
-                nameTxt.setText(buscaCliente.get().getNombre());
-                lastTxt.setText(buscaCliente.get().getApellido());
-                dataDate.setDate(buscaCliente.get().getFecha_n());
-                depCmb.setSelectedItem(buscaCliente.get().getCiudad().getIdDepartamento().getNombre());
-                cityCmb.setSelectedItem(buscaCliente.get().getCiudad().getNombre());
-                adressTxt.setText(buscaCliente.get().getDireccionCliente());
-                telTxt.setText(buscaCliente.get().getCelular());
-                updateButton.setEnabled(true);
-                deleteButton.setEnabled(true);
-                cancelButton.setEnabled(true);
+                if (searchRb.isSelected()) {
+                    regRb.setEnabled(false);
+                    habilitarCamposReg();
+                    idTxt.setEnabled(false);
+                    nameTxt.setText(buscaCliente.get().getNombre());
+                    lastTxt.setText(buscaCliente.get().getApellido());
+                    dataDate.setDate(buscaCliente.get().getFecha_n());
+                    depCmb.setSelectedItem(buscaCliente.get().getCiudad().getIdDepartamento().getNombre());
+                    cityCmb.setSelectedItem(buscaCliente.get().getCiudad().getNombre());
+                    adressTxt.setText(buscaCliente.get().getDireccionCliente());
+                    telTxt.setText(buscaCliente.get().getCelular());
+                    updateButton.setEnabled(true);
+                    deleteButton.setEnabled(true);
+                    cancelButton.setEnabled(true);
+                }
+            } else {
+                if (regRb.isSelected()) {
+                    habilitarCamposReg();
+                    idTxt.setEnabled(false);
+                    regButton.setEnabled(true);
+                    searchRb.setEnabled(false);
+                    notificaTxt.setText("id Disponible");
+                    cancelButton.setEnabled(true);
+                }
+                if (searchRb.isSelected()) {
+                    notificaTxt.setText("El Cliente con id " + idTxt.getText() + "\n no existe");
+                    radioGrupo.clearSelection();
+                }
             }
-        } else {
-            if (regRb.isSelected()) {
-                habilitarCamposReg();
-                idTxt.setEnabled(false);
-                regButton.setEnabled(true);
-                searchRb.setEnabled(false);
-                notificaTxt.setText("id Disponible");
-                cancelButton.setEnabled(true);
-            }
-            if (searchRb.isSelected()) {
-                notificaTxt.setText("El Cliente con id " + idTxt.getText() + "\n no existe");
-                radioGrupo.clearSelection();
-            }
+        } catch (Exception e) {
+            notificaTxt.setText("Ha ocurrido un error inesperado");
+            radioGrupo.clearSelection();
         }
     }
 
@@ -1176,24 +1181,27 @@ public class EmpleadoFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void usersByCity(){
-        try{
+    private void idTxtFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_idTxtFocusLost
+        // TODO add your handling code here:
+    }//GEN-LAST:event_idTxtFocusLost
+
+    private void usersByCity() {
+        try {
             Long usuarios = clienteCrud.countByCiudad(obtenerIdCiudad(cityCCmb.getSelectedItem().toString()));
             numberUserTxt.setText(usuarios.toString());
-        }catch(Exception e){
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "No existen usuarios registrados en la ciudad seleccionada", "No se encontraron Usuarios", JOptionPane.ERROR_MESSAGE);
         }
 
     }
-    
-    
-    private void verificaLetra(java.awt.event.KeyEvent evt) {
+
+    public void verificaLetra(java.awt.event.KeyEvent evt) {
         if (Character.isLetter(evt.getKeyChar())) {
             evt.consume();
         }
     }
 
-    private void verificaNumero(java.awt.event.KeyEvent evt) {
+    public void verificaNumero(java.awt.event.KeyEvent evt) {
         if (Character.isDigit(evt.getKeyChar())) {
             evt.consume();
         }
@@ -1233,8 +1241,8 @@ public class EmpleadoFrame extends javax.swing.JFrame {
             clasificacionCmb.addItem(clasIterator.next().getNombre());
         }
     }
-    
-    public void changeStateDep(java.awt.event.ItemEvent evt, JComboBox departamentoCmb, JComboBox ciudadCmb){
+
+    public void changeStateDep(java.awt.event.ItemEvent evt, JComboBox departamentoCmb, JComboBox ciudadCmb) {
         if (evt.getStateChange() == ItemEvent.SELECTED) {
             ciudadCmb.removeAllItems();
             mostrarCiudad(departamentoCmb, ciudadCmb);

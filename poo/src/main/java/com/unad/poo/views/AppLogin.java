@@ -51,12 +51,11 @@ public class AppLogin extends javax.swing.JFrame {
         userTxt = new javax.swing.JTextField();
         UserTxt = new javax.swing.JLabel();
         PassTxt = new javax.swing.JLabel();
-        passTxt = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         notificaTxt = new javax.swing.JLabel();
+        passwordTxt = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMaximumSize(new java.awt.Dimension(340, 230));
         setMinimumSize(new java.awt.Dimension(340, 230));
         setSize(new java.awt.Dimension(340, 230));
 
@@ -78,13 +77,6 @@ public class AppLogin extends javax.swing.JFrame {
 
         PassTxt.setFont(new java.awt.Font("Eras Demi ITC", 0, 15)); // NOI18N
         PassTxt.setText("Password");
-
-        passTxt.setFont(new java.awt.Font("Eras Light ITC", 0, 14)); // NOI18N
-        passTxt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                passTxtActionPerformed(evt);
-            }
-        });
 
         jButton1.setFont(new java.awt.Font("Eras Demi ITC", 1, 14)); // NOI18N
         jButton1.setText("Iniciar Sesion");
@@ -115,7 +107,8 @@ public class AppLogin extends javax.swing.JFrame {
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(loginTxt)
                                     .addComponent(userTxt, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
-                                    .addComponent(passTxt)))))
+                                    .addComponent(passwordTxt))
+                                .addGap(16, 16, 16))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(notificaTxt)))
@@ -133,8 +126,8 @@ public class AppLogin extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(PassTxt)
-                    .addComponent(passTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
+                    .addComponent(passwordTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
                 .addComponent(notificaTxt)
                 .addGap(14, 14, 14)
                 .addComponent(jButton1)
@@ -161,10 +154,6 @@ public class AppLogin extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_userTxtActionPerformed
 
-    private void passTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passTxtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_passTxtActionPerformed
-
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         LoguearUsuario();
         // TODO add your handling code here:
@@ -174,11 +163,11 @@ public class AppLogin extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     private void LoguearUsuario() {
-
-        Admin adminLogin = adminCrud.findByUsernameAndContraseña(userTxt.getText(), passTxt.getText());
+        System.out.println(String.valueOf(passwordTxt.getPassword()));
+        Admin adminLogin = adminCrud.findByUsernameAndContraseña(userTxt.getText(), String.valueOf(passwordTxt.getPassword()));
         if (adminLogin == null) {
 
-            Empleado empleadoLogin = empleadoCrud.findByUsernameAndContraseña(userTxt.getText(), passTxt.getText());
+            Empleado empleadoLogin = empleadoCrud.findByUsernameAndContraseña(userTxt.getText(), String.valueOf(passwordTxt.getPassword()));
             if (empleadoLogin == null) {
                 StringBuffer respuesta = new StringBuffer();
                 respuesta.append("Usuario no encontrado o password Invalida");
@@ -203,7 +192,7 @@ public class AppLogin extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel loginTxt;
     private javax.swing.JLabel notificaTxt;
-    private javax.swing.JTextField passTxt;
+    private javax.swing.JPasswordField passwordTxt;
     private javax.swing.JTextField userTxt;
     // End of variables declaration//GEN-END:variables
 }

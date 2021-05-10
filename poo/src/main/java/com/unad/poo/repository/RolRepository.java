@@ -13,5 +13,5 @@ import org.springframework.data.repository.CrudRepository;
  * @author FERNi
  */
 public interface RolRepository extends CrudRepository<Rol, Integer> {
-    
+    public Rol findByNombre(String nombre);
 }

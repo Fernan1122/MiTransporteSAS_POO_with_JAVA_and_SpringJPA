@@ -8,6 +8,7 @@ package com.unad.poo.views;
 import com.unad.poo.ProgramaJavaApplication;
 import com.unad.poo.SpringContext;
 import com.unad.poo.models.Ciudad;
+import com.unad.poo.models.Rol;
 import com.unad.poo.models.Departamento;
 import com.unad.poo.models.Empleado;
 import com.unad.poo.models.Rol;
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import javax.swing.table.DefaultTableModel;
 import java.util.Optional;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -33,6 +36,7 @@ public class AdminFrame extends javax.swing.JFrame {
     ArrayList<Departamento> datosDep = new ArrayList<>();
     ArrayList<Ciudad> datosCiudad = new ArrayList<>();
     ArrayList<Empleado> datosEmp = new ArrayList<>();
+    ArrayList<Rol> datosRol = new ArrayList<>();
 
     CiudadRepository ciudadCrud;
     EmpleadoRepository empleadoCrud;
@@ -42,7 +46,7 @@ public class AdminFrame extends javax.swing.JFrame {
     Rol rol = new Rol();
     Ciudad ciudad = new Ciudad();
     Departamento dep = new Departamento();
-    
+
     EmpleadoFrame empControl = new EmpleadoFrame();
 
     public AdminFrame() {
@@ -57,13 +61,14 @@ public class AdminFrame extends javax.swing.JFrame {
         ciudadCrud = SpringContext.getBean(CiudadRepository.class);
         depCrud = SpringContext.getBean(DepartamentoRepository.class);
         rolCrud = SpringContext.getBean(RolRepository.class);
-        
+
         llenarTabla();
+        mostrarRoles(RolCmb);
+        bloquearCamposReg();
         empControl.mostrarDepartamentos(depCmb);
         empControl.mostrarCiudad(depCmb, cityCmb);
         empControl.mostrarDepartamentos(depRCmb);
         empControl.mostrarCiudad(depRCmb, cityRCmb);
-        
 
     }
 
@@ -100,10 +105,10 @@ public class AdminFrame extends javax.swing.JFrame {
         correoTxt = new javax.swing.JTextField();
         jLabel28 = new javax.swing.JLabel();
         RolCmb = new javax.swing.JComboBox<>();
-        nameTxt1 = new javax.swing.JTextField();
+        usernameTxt = new javax.swing.JTextField();
         jLabel30 = new javax.swing.JLabel();
         jLabel31 = new javax.swing.JLabel();
-        lastTxt1 = new javax.swing.JTextField();
+        passwordTxt = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         dataTable = new javax.swing.JTable();
         jLabel32 = new javax.swing.JLabel();
@@ -111,6 +116,7 @@ public class AdminFrame extends javax.swing.JFrame {
         regRb = new javax.swing.JRadioButton();
         searchRb = new javax.swing.JRadioButton();
         cancelButton = new javax.swing.JButton();
+        notificaTxt = new javax.swing.JLabel();
         cityCrud = new javax.swing.JPanel();
         depRCmb = new javax.swing.JComboBox<>();
         cityRCmb = new javax.swing.JComboBox<>();
@@ -130,6 +136,19 @@ public class AdminFrame extends javax.swing.JFrame {
         jLabel1.setText("Id Empleado");
 
         idTxt.setFont(new java.awt.Font("Eras Light ITC", 0, 18)); // NOI18N
+        idTxt.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                idTxtFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                idTxtFocusLost(evt);
+            }
+        });
+        idTxt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                idTxtKeyTyped(evt);
+            }
+        });
 
         jLabel2.setFont(new java.awt.Font("Eras Demi ITC", 1, 14)); // NOI18N
         jLabel2.setText("Nombre:");
@@ -143,8 +162,18 @@ public class AdminFrame extends javax.swing.JFrame {
                 nameTxtActionPerformed(evt);
             }
         });
+        nameTxt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                nameTxtKeyTyped(evt);
+            }
+        });
 
         lastTxt.setFont(new java.awt.Font("Eras Light ITC", 0, 14)); // NOI18N
+        lastTxt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                lastTxtKeyTyped(evt);
+            }
+        });
 
         jLabel4.setFont(new java.awt.Font("Eras Demi ITC", 1, 14)); // NOI18N
         jLabel4.setText("Departamento:");
@@ -156,6 +185,11 @@ public class AdminFrame extends javax.swing.JFrame {
         jLabel7.setText("Telefono:");
 
         telTxt.setFont(new java.awt.Font("Eras Light ITC", 0, 14)); // NOI18N
+        telTxt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                telTxtKeyTyped(evt);
+            }
+        });
 
         regButton.setFont(new java.awt.Font("Eras Medium ITC", 0, 18)); // NOI18N
         regButton.setText("Registrar");
@@ -167,9 +201,19 @@ public class AdminFrame extends javax.swing.JFrame {
 
         updateButton.setFont(new java.awt.Font("Eras Medium ITC", 0, 18)); // NOI18N
         updateButton.setText("Actualizar");
+        updateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                updateButtonActionPerformed(evt);
+            }
+        });
 
         deleteButton.setFont(new java.awt.Font("Eras Medium ITC", 0, 18)); // NOI18N
         deleteButton.setText("Eliminar");
+        deleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteButtonActionPerformed(evt);
+            }
+        });
 
         depCmb.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -193,12 +237,16 @@ public class AdminFrame extends javax.swing.JFrame {
         jLabel28.setFont(new java.awt.Font("Eras Demi ITC", 1, 14)); // NOI18N
         jLabel28.setText("Rol:");
 
-        RolCmb.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        nameTxt1.setFont(new java.awt.Font("Eras Light ITC", 0, 14)); // NOI18N
-        nameTxt1.addActionListener(new java.awt.event.ActionListener() {
+        RolCmb.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nameTxt1ActionPerformed(evt);
+                RolCmbActionPerformed(evt);
+            }
+        });
+
+        usernameTxt.setFont(new java.awt.Font("Eras Light ITC", 0, 14)); // NOI18N
+        usernameTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                usernameTxtActionPerformed(evt);
             }
         });
 
@@ -208,7 +256,7 @@ public class AdminFrame extends javax.swing.JFrame {
         jLabel31.setFont(new java.awt.Font("Eras Demi ITC", 1, 14)); // NOI18N
         jLabel31.setText("Password:");
 
-        lastTxt1.setFont(new java.awt.Font("Eras Light ITC", 0, 14)); // NOI18N
+        passwordTxt.setFont(new java.awt.Font("Eras Light ITC", 0, 14)); // NOI18N
 
         dataTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -258,6 +306,14 @@ public class AdminFrame extends javax.swing.JFrame {
 
         cancelButton.setFont(new java.awt.Font("Eras Medium ITC", 0, 18)); // NOI18N
         cancelButton.setText("Cancelar");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
+
+        notificaTxt.setFont(new java.awt.Font("Eras Demi ITC", 0, 14)); // NOI18N
+        notificaTxt.setText("\"\"");
 
         javax.swing.GroupLayout userCrudLayout = new javax.swing.GroupLayout(userCrud);
         userCrud.setLayout(userCrudLayout);
@@ -283,54 +339,50 @@ public class AdminFrame extends javax.swing.JFrame {
                                 .addGap(47, 47, 47)
                                 .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(depCmb, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(nameTxt1, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(usernameTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(cityCmb, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(IdentiCmb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(nameTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(dataDate, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(dataDate, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, userCrudLayout.createSequentialGroup()
+                                .addComponent(notificaTxt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(8, 8, 8)))
                         .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(userCrudLayout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel31)
-                                .addGap(357, 357, 357))
-                            .addGroup(userCrudLayout.createSequentialGroup()
+                                .addGap(53, 53, 53)
+                                .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, userCrudLayout.createSequentialGroup()
+                                        .addComponent(jLabel7)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(telTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, userCrudLayout.createSequentialGroup()
+                                        .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel3)
+                                            .addComponent(jLabel29))
+                                        .addGap(18, 18, 18)
+                                        .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                            .addComponent(correoTxt, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
+                                            .addComponent(lastTxt, javax.swing.GroupLayout.Alignment.LEADING)))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, userCrudLayout.createSequentialGroup()
+                                        .addComponent(jLabel28)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(RolCmb, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(userCrudLayout.createSequentialGroup()
+                                        .addComponent(jLabel31)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(passwordTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(37, 37, 37)
                                 .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(userCrudLayout.createSequentialGroup()
-                                        .addGap(56, 56, 56)
-                                        .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(userCrudLayout.createSequentialGroup()
-                                                .addComponent(jLabel7)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(telTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(userCrudLayout.createSequentialGroup()
-                                                .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addComponent(jLabel3)
-                                                    .addComponent(jLabel29))
-                                                .addGap(18, 18, 18)
-                                                .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                                    .addComponent(correoTxt, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
-                                                    .addComponent(lastTxt, javax.swing.GroupLayout.Alignment.LEADING)))
-                                            .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                                .addGroup(userCrudLayout.createSequentialGroup()
-                                                    .addComponent(jLabel28)
-                                                    .addGap(61, 61, 61)
-                                                    .addComponent(RolCmb, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                .addComponent(lastTxt1, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                        .addGap(37, 37, 37)
-                                        .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(regRb)
-                                            .addComponent(searchRb)))
-                                    .addGroup(userCrudLayout.createSequentialGroup()
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addGroup(userCrudLayout.createSequentialGroup()
-                                                .addComponent(regButton)
-                                                .addGap(36, 36, 36)
-                                                .addComponent(updateButton)
-                                                .addGap(41, 41, 41)
-                                                .addComponent(deleteButton)))))
-                                .addGap(17, 17, 17))))
+                                    .addComponent(regRb)
+                                    .addComponent(searchRb)))
+                            .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(userCrudLayout.createSequentialGroup()
+                                .addComponent(regButton)
+                                .addGap(36, 36, 36)
+                                .addComponent(updateButton)
+                                .addGap(41, 41, 41)
+                                .addComponent(deleteButton)))
+                        .addGap(17, 17, 17))
                     .addGroup(userCrudLayout.createSequentialGroup()
                         .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 865, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -386,8 +438,8 @@ public class AdminFrame extends javax.swing.JFrame {
                                 .addComponent(jLabel30))
                             .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(jLabel31)
-                                .addComponent(lastTxt1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(nameTxt1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(passwordTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(usernameTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(18, 18, 18)
                         .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel32)
@@ -400,8 +452,13 @@ public class AdminFrame extends javax.swing.JFrame {
                         .addComponent(regRb)
                         .addGap(18, 18, 18)
                         .addComponent(searchRb)))
-                .addGap(9, 9, 9)
-                .addComponent(cancelButton)
+                .addGroup(userCrudLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(userCrudLayout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addComponent(cancelButton))
+                    .addGroup(userCrudLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(notificaTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(50, 50, 50))
@@ -527,9 +584,9 @@ public class AdminFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void nameTxt1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameTxt1ActionPerformed
+    private void usernameTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usernameTxtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_nameTxt1ActionPerformed
+    }//GEN-LAST:event_usernameTxtActionPerformed
 
     private void nameTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameTxtActionPerformed
         // TODO add your handling code here:
@@ -552,7 +609,7 @@ public class AdminFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void regButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_regButtonActionPerformed
-        llenarTabla();
+        registrarOActualizarEmpleado();
         // TODO add your handling code here:
     }//GEN-LAST:event_regButtonActionPerformed
 
@@ -576,18 +633,66 @@ public class AdminFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_regRbStateChanged
 
     private void regRbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_regRbActionPerformed
-
         // TODO add your handling code here:
+        funcionRadioButtons();
     }//GEN-LAST:event_regRbActionPerformed
 
     private void searchRbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchRbActionPerformed
-     
         // TODO add your handling code here:
+        funcionRadioButtons();
     }//GEN-LAST:event_searchRbActionPerformed
+
+    private void idTxtFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_idTxtFocusLost
+        // TODO add your handling code here:
+    }//GEN-LAST:event_idTxtFocusLost
+
+    private void idTxtFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_idTxtFocusGained
+        // TODO add your handling code here:
+        notificaTxt.setText("");
+    }//GEN-LAST:event_idTxtFocusGained
+
+    private void RolCmbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RolCmbActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_RolCmbActionPerformed
+
+    private void nameTxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nameTxtKeyTyped
+        // TODO add your handling code here:
+        empControl.verificaNumero(evt);
+    }//GEN-LAST:event_nameTxtKeyTyped
+
+    private void idTxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_idTxtKeyTyped
+        // TODO add your handling code here:
+        empControl.verificaLetra(evt);
+    }//GEN-LAST:event_idTxtKeyTyped
+
+    private void lastTxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lastTxtKeyTyped
+        // TODO add your handling code here:
+        empControl.verificaNumero(evt);
+    }//GEN-LAST:event_lastTxtKeyTyped
+
+    private void telTxtKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_telTxtKeyTyped
+        // TODO add your handling code here:
+        empControl.verificaLetra(evt);
+    }//GEN-LAST:event_telTxtKeyTyped
+
+    private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateButtonActionPerformed
+        registrarOActualizarEmpleado();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_updateButtonActionPerformed
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        // TODO add your handling code here:
+        limpiarReg();
+    }//GEN-LAST:event_cancelButtonActionPerformed
+
+    private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
+        // TODO add your handling code here:
+        deleteEmpleado(evt);
+    }//GEN-LAST:event_deleteButtonActionPerformed
 
     private void llenarTabla() {
         Object[] empleadoM = new Object[11];
-        tabla=(DefaultTableModel)dataTable.getModel();
+        tabla = (DefaultTableModel) dataTable.getModel();
         try {
             datosEmp = (ArrayList<Empleado>) empleadoCrud.findAll();
             for (int i = 0; i < datosEmp.size(); i++) {
@@ -606,14 +711,190 @@ public class AdminFrame extends javax.swing.JFrame {
             }
         } catch (Exception e) {
         }
-        
+    }
 
+    private void mostrarRoles(JComboBox rolCmb) {
+        datosRol = (ArrayList<Rol>) rolCrud.findAll();
+        Iterator<Rol> rolIterator = datosRol.iterator();
+        while (rolIterator.hasNext()) {
+            rolCmb.addItem(rolIterator.next().getNombre());
+        }
+    }
+
+    private void funcionRadioButtons() {
+        //isPresent retorna null
+        try {
+            Optional<Empleado> buscaEmpleado = empleadoCrud.findById(Long.parseLong(idTxt.getText()));
+            if (buscaEmpleado.isPresent()) {
+                if (regRb.isSelected()) {
+                    notificaTxt.setText("El Empleado con id: " + idTxt.getText() + "\n ya existe");
+                    radioGrupAdmin.clearSelection();
+                }
+
+                if (searchRb.isSelected()) {
+                    regRb.setEnabled(false);
+                    habilitarCamposReg();
+                    idTxt.setEnabled(false);
+                    nameTxt.setText(buscaEmpleado.get().getNombre());
+                    lastTxt.setText(buscaEmpleado.get().getApellido());
+                    dataDate.setDate(buscaEmpleado.get().getFecha_n());
+                    depCmb.setSelectedItem(buscaEmpleado.get().getCiudad().getIdDepartamento().getNombre());
+                    cityCmb.setSelectedItem(buscaEmpleado.get().getCiudad().getNombre());
+                    telTxt.setText(buscaEmpleado.get().getCelular());
+                    correoTxt.setText(buscaEmpleado.get().getCorreo());
+                    usernameTxt.setText(buscaEmpleado.get().getUsername());
+                    passwordTxt.setText(buscaEmpleado.get().getContraseña());
+                    RolCmb.setSelectedItem(buscaEmpleado.get().getRol().getNombre());
+                    IdentiCmb.setSelectedItem(buscaEmpleado.get().getIdentificador());
+                    updateButton.setEnabled(true);
+                    deleteButton.setEnabled(true);
+                    cancelButton.setEnabled(true);
+                }
+            } else {
+                if (regRb.isSelected()) {
+                    habilitarCamposReg();
+                    idTxt.setEnabled(false);
+                    regButton.setEnabled(true);
+                    searchRb.setEnabled(false);
+                    notificaTxt.setText("id Disponible");
+                    cancelButton.setEnabled(true);
+                }
+                if (searchRb.isSelected()) {
+                    notificaTxt.setText("El Empleado con id " + idTxt.getText() + "\n no existe");
+                    radioGrupAdmin.clearSelection();
+                }
+            }
+        } catch (Exception e) {
+            notificaTxt.setText("Ha ocurrido un error inesperado");
+            radioGrupAdmin.clearSelection();
+        }
 
     }
+
+    private void habilitarCamposReg() {
+        nameTxt.setEnabled(true);
+        lastTxt.setEnabled(true);
+        dataDate.setEnabled(true);
+        depCmb.setEnabled(true);
+        cityCmb.setEnabled(true);
+        correoTxt.setEnabled(true);
+        usernameTxt.setEnabled(true);
+        passwordTxt.setEnabled(true);
+        RolCmb.setEnabled(true);
+        IdentiCmb.setEnabled(true);
+        telTxt.setEnabled(true);
+    }
+
+    private void bloquearCamposReg() {
+        nameTxt.setEnabled(false);
+        lastTxt.setEnabled(false);
+        dataDate.setEnabled(false);
+        depCmb.setEnabled(false);
+        cityCmb.setEnabled(false);
+        correoTxt.setEnabled(false);
+        usernameTxt.setEnabled(false);
+        passwordTxt.setEnabled(false);
+        RolCmb.setEnabled(false);
+        IdentiCmb.setEnabled(false);
+        telTxt.setEnabled(false);
+        regButton.setEnabled(false);
+        updateButton.setEnabled(false);
+        deleteButton.setEnabled(false);
+        cancelButton.setEnabled(false);
+    }
+
+    private void limpiarReg() {
+        nameTxt.setText("");
+        lastTxt.setText("");
+        dataDate.setCalendar(null);
+        depCmb.setSelectedIndex(1);
+        correoTxt.setText("");
+        passwordTxt.setText("");
+        usernameTxt.setText("");
+        RolCmb.setSelectedIndex(1);
+        IdentiCmb.setSelectedIndex(1);
+        telTxt.setText("");
+        radioGrupAdmin.clearSelection();
+        regRb.setEnabled(true);
+        searchRb.setEnabled(true);
+        notificaTxt.setText("");
+        idTxt.setEnabled(true);
+        bloquearCamposReg();
+    }
+
+    private void registrarOActualizarEmpleado() {
+
+        emp = setterEmpleado(cityCmb, RolCmb);
+
+        if (validarCamposNullos() == false) {
+            JOptionPane.showMessageDialog(this, "No se aceptan campos Nullos",
+                    "Empleado no guardado", JOptionPane.ERROR_MESSAGE);
+        } else {
+            try {
+                empleadoCrud.save(emp);
+                notificaTxt.setText("Empleado guardado exitosamente");
+                limpiarReg();
+                idTxt.setEnabled(true);
+                tabla.setRowCount(0);
+                llenarTabla();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Campos sin Llenar o "
+                        + "llenados incorrectamente", "Cliente no guardado",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private Rol obtenerIdRol(String rolName) {
+        Rol objectRol = rolCrud.findByNombre(rolName);
+        return objectRol;
+    }
+
+    private Empleado setterEmpleado(JComboBox cityId, JComboBox rolId) {
+        emp.setId(Long.parseLong(idTxt.getText()));
+        emp.setNombre(nameTxt.getText());
+        emp.setApellido(lastTxt.getText());
+        emp.setFecha_n(dataDate.getDate());
+        emp.setUsername(usernameTxt.getText());
+        emp.setContraseña(passwordTxt.getText());
+        emp.setRol(obtenerIdRol(rolId.getSelectedItem().toString()));
+        String charIdenti = IdentiCmb.getSelectedItem().toString();
+        emp.setIdentificador(charIdenti.charAt(0));
+        emp.setCiudad(empControl.obtenerIdCiudad(cityId.getSelectedItem().toString()));
+        emp.setCorreo(correoTxt.getText());
+        emp.setCelular(telTxt.getText());
+
+        return emp;
+    }
+
+    private boolean validarCamposNullos() {
+        if (nameTxt.getText().isEmpty() || lastTxt.getText().isEmpty()
+                || usernameTxt.getText().isEmpty() || passwordTxt.getText().isEmpty()
+                || telTxt.getText().isEmpty() || correoTxt.getText().isEmpty()
+                || dataDate.getDate() == null || cityCmb.getSelectedItem() == null
+                || RolCmb.getSelectedItem() == null || IdentiCmb.getSelectedItem() == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private void deleteEmpleado(java.awt.event.ActionEvent evt) {
+        try {
+            empleadoCrud.deleteById(Long.parseLong(idTxt.getText()));
+            notificaTxt.setText("Se elimino el Cliente con ID: "
+                    + idTxt.getText());
+            limpiarReg();
+            tabla.setRowCount(0);
+            llenarTabla();
+        } catch (Exception e) {
+            notificaTxt.setText("Ocurrio un error al eliminar");
+        }
+    }
+
     /**
      * @param args the command line arguments
      */
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> IdentiCmb;
@@ -651,9 +932,9 @@ public class AdminFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     protected javax.swing.JTabbedPane jTabbedPane1;
     public javax.swing.JTextField lastTxt;
-    public javax.swing.JTextField lastTxt1;
     public javax.swing.JTextField nameTxt;
-    public javax.swing.JTextField nameTxt1;
+    private javax.swing.JLabel notificaTxt;
+    public javax.swing.JTextField passwordTxt;
     private javax.swing.ButtonGroup radioGrupAdmin;
     public javax.swing.JButton regButton;
     public javax.swing.JRadioButton regRb;
@@ -661,5 +942,6 @@ public class AdminFrame extends javax.swing.JFrame {
     public javax.swing.JTextField telTxt;
     public javax.swing.JButton updateButton;
     protected javax.swing.JPanel userCrud;
+    public javax.swing.JTextField usernameTxt;
     // End of variables declaration//GEN-END:variables
 }
